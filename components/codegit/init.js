@@ -69,10 +69,10 @@
 				if (target.tagName === 'BUTTON') {
 					if (target.attr('data-button') === 'diff') {
 						self.showPanel('diff', self.activeRepo, {
-							files: [target.parent('tr').attr('data-file')]
+							files: [target.parent('[data-file]').attr('data-file')]
 						});
 					} else if (target.attr('data-button') === 'undo') {
-						self.undo(self.activeRepo, target.parent('tr').attr('data-file'));
+						self.undo(self.activeRepo, target.parent('[data-file]').attr('data-file'));
 					}
 				}
 			});
@@ -379,6 +379,7 @@
 					},
 					success: function(reply) {
 						toast(reply);
+						self.showPanel('overview', self.activeRepo);
 					}
 				});
 			};

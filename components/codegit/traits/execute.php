@@ -9,45 +9,52 @@ trait Execute {
 		$cmd = str_replace("\#", "#", $cmd);
 		$cmd = str_replace("\(", "(", $cmd);
 		$cmd = str_replace("\)", ")", $cmd);
-
 		$result = Common::execute($cmd . ' 2>&1');
 		$code = $result["code"];
 		
 		if ($code === 0) {
 			return explode("\n", $result["text"]);
 		} else {
+			Common::log('Git error for ' . $cmd . ' : ' . print_r($result,true), "git");
 			return false;
 		}
 	}
 
-	private function parseCommandCodes($code) {
+		debug($cmd);
+		debug($result);
 
-		// $codes = array(
-		// 	0 => true,
-		// 	1 => false,
-		// 	3 => "login_required",
-		// 	4 => "login_required",
-		// 	7 => "password_required",
-		// 	64 => "error",
-		// );
+		$result = $this->parseReturn($result);
+		
+		// TODO: Result Text needs to be either imploded or exploded into an array
 
-		// if(in_array($code, $codes)) {
-		// 	return $codes[$code];
-		// } else {
-		// 	return false;
-		// }
+		// Update files to match new return:
+		//?	Branches
+		//	Commit
+		//	Execute
+		//	History
+		//	Initialize
+		//	Remotes
+		//	Settings
+		//?	Status
+		//?	Transfer
 
-		switch ($code) {
+		return $result;
+	}
+
+	private function parseReturn($result) {
+
+		if ($result["code"] === 0) {
 			// Success
-			case 0:
-				return true;
-				break;
-			case 1:
-				return false;
-				break;
-			default:
-				return $code;
-				break;
+			$result["status"] = "success";
+		} elseif ($result["code"] === 128) {
+			// Host key error
+			$result["status"] = "warning";
+		} else {
+			// Generic error
+			$result["status"] = "error";
 		}
+
+		$result["text"] = explode("\n", $result["text"]);
+		return $result;
 	}
 }
